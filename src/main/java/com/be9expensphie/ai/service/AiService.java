@@ -27,4 +27,12 @@ public class AiService {
                 .call()
                 .content();
     }
+
+    public String generateSuggestion(String prompt) {
+        log.info("Generating expense suggestion via OpenAI");
+        return chatClient.prompt()
+                .user(prompt)
+                .call()
+                .content();
+    }
 }

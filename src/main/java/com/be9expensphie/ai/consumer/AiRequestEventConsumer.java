@@ -1,6 +1,7 @@
 package com.be9expensphie.ai.consumer;
 
 import com.be9expensphie.common.event.AiRequestEvent;
+import com.be9expensphie.common.event.AiRequestType;
 import com.be9expensphie.common.event.AiResponseEvent;
 import com.be9expensphie.ai.producer.AiResponseEventProducer;
 import com.be9expensphie.ai.service.AiService;
@@ -34,13 +35,18 @@ public class AiRequestEventConsumer {
 
         AiResponseEvent response;
         try {
-            String parsedJson = aiService.parseExpense(event.getPrompt());
+            String result;
+            if (event.getType() == AiRequestType.GENERATE_SUGGESTION) {
+                result = aiService.generateSuggestion(event.getPrompt());
+            } else {
+                result = aiService.parseExpense(event.getPrompt());
+            }
             response = AiResponseEvent.builder()
-                    .parsedJson(parsedJson)
+                    .parsedJson(result)
                     .success(true)
                     .build();
         } catch (Exception e) {
-            log.error("OpenAI call failed for householdId={}", event.getHouseholdId(), e);
+            log.error("AI call failed: type={}, householdId={}", event.getType(), event.getHouseholdId(), e);
             response = AiResponseEvent.builder()
                     .success(false)
                     .errorMessage(e.getMessage())
