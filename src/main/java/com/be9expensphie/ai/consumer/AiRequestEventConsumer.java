@@ -28,7 +28,7 @@ public class AiRequestEventConsumer {
             kafkaTemplate = "retryKafkaTemplate"
     )
     @KafkaListener(topics = "ai-request-events", containerFactory = "aiRequestKafkaListenerContainerFactory")
-    //need ConsumerRequest for header checking correlation id
+    //need ConsumerRecord for header checking correlation id
     public void consume(ConsumerRecord<String, AiRequestEvent> record){
         AiRequestEvent event = record.value();
         log.info("Received AI request: householdId={}", event.getHouseholdId());
@@ -55,6 +55,7 @@ public class AiRequestEventConsumer {
         aiResponseEventProducer.publish(response, record.headers());
     }
 
+    //annotation mark worker to handle dlt(after times retry failed->go into a topic calls dlt)
     @DltHandler
     public void handleDlt(ConsumerRecord<String, AiRequestEvent> record) {
         log.error("ai-request-events exhausted retries — DLT: householdId={}", record.value().getHouseholdId());

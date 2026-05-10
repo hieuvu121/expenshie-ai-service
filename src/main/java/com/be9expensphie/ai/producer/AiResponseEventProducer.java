@@ -19,6 +19,11 @@ public class AiResponseEventProducer {
         for (Header header : requestHeaders) {
             record.headers().add(header);
         }
-        aiResponseKafkaTemplate.send(record);
+        aiResponseKafkaTemplate.send(record)
+                .whenComplete((result, ex) -> {
+                    if (ex != null) {
+                        log.error("Failed to publish AI response to ai-response-events", ex);
+                    }
+                });
     }
 }

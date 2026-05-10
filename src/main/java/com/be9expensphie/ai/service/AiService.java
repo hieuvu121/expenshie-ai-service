@@ -14,7 +14,7 @@ public class AiService {
 
     public String parseExpense(String prompt) {
         log.info("Sending prompt to OpenAI");
-        return chatClient.prompt()
+        String content= chatClient.prompt()
                 .system("""                                                                                                                                                                                                            
                           You are an expense parsing assistant.
                           Parse the user description into a JSON object with exactly these fields:                                                                                                                                       
@@ -26,13 +26,21 @@ public class AiService {
                 .user(prompt)
                 .call()
                 .content();
+        if (content == null || content.isBlank()) {
+            throw new IllegalStateException("OpenAI returned empty response for expense parsing");
+        }
+        return content;
     }
 
     public String generateSuggestion(String prompt) {
         log.info("Generating expense suggestion via OpenAI");
-        return chatClient.prompt()
+        String content = chatClient.prompt()
                 .user(prompt)
                 .call()
                 .content();
+        if (content == null || content.isBlank()) {
+            throw new IllegalStateException("OpenAI returned empty response for suggestion");
+        }
+        return content;
     }
 }
